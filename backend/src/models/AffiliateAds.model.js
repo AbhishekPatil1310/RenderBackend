@@ -1,5 +1,4 @@
 const {Schema,model} = require('mongoose');
-const { time } = require('three/tsl');
 
 const AffiliateAdsSchema = new Schema({
     name: {
@@ -23,5 +22,6 @@ const AffiliateAdsSchema = new Schema({
         required:true,
     },
 },{timestamps:true});
+
 
 module.exports = model('AffiliateAds', AffiliateAdsSchema);
