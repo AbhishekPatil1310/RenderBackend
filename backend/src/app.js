@@ -27,6 +27,7 @@ function buildApp() {
     'https://advestor-frontend.vercel.app',
       'https://patil-project.vercel.app',
     'https://vercel-frontend-eta-plum.vercel.app',
+    'https://www.advestors.org'
     'https://advestor-frontend.vercel.app'// ✅ your actual frontend
   ].filter(Boolean); // remove null/undefined
 
@@ -89,3 +90,4 @@ function buildApp() {
 
 
 module.exports = buildApp;
+
