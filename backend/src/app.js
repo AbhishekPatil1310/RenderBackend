@@ -13,7 +13,7 @@ const contactRoutes = require('./routes/contact.routs');
 const parse = require('@fastify/formbody');
 const userRoutes = require('./routes/user.routes');
 const adminRoutes = require('./routes/admin.routes');
-require('./utils/unbanSchedular');
+const paymentRoutes = require('./services/RazerPay')
 
 function buildApp() {
   const app = fastify({ logger: true });
@@ -26,8 +26,6 @@ function buildApp() {
     'https://advestor-frontend-wlaf1c02c-abhisheks-projects-680a2fd9.vercel.app',
     'https://advestor-frontend.vercel.app',
       'https://patil-project.vercel.app',
-    'https://vercel-frontend-eta-plum.vercel.app',
-    'https://www.advestors.org',
     'https://advestor-frontend.vercel.app'// ✅ your actual frontend
   ].filter(Boolean); // remove null/undefined
 
@@ -41,7 +39,7 @@ function buildApp() {
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
@@ -71,6 +69,9 @@ function buildApp() {
   app.register(async (fastify) => {
     fastify.register(contactRoutes);
   }, { prefix: '/api/v1' });
+  app.register(async (fastify) => {
+    fastify.register(paymentRoutes);
+  }, { prefix: '/api' });
 
   app.register(async (fastify) => {
     fastify.register(userRoutes);
@@ -88,7 +89,4 @@ function buildApp() {
   return app;
 }
 
-
 module.exports = buildApp;
-
-

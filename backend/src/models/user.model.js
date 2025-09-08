@@ -53,6 +53,10 @@ const userSchema = new Schema(
       unique: true,
       sparse: true, // Allows multiple null values
     },
+    upiId: {
+      type: String,
+      trim: true,
+    },
     isEmailVerified: {
       type: Boolean,
       default: false,

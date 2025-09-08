@@ -160,7 +160,7 @@ module.exports.logout = async function logout(request, reply) {
 
     reply
       .clearCookie('accessToken', { path: '/' })
-      .clearCookie('refreshToken', { path: '/api/v1/auth' })
+      .clearCookie('refreshToken', { path: '/' })
       .send({ message: 'Logged out' });
   } catch (err) {
     request.log.error(err);

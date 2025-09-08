@@ -3,6 +3,7 @@ const User = require('../models/user.model');
 const Ad = require('../models/ad.model'); 
 const AdViewLog = require('../models/AdView.model');
 const AffiliateAds = require('../models/AffiliateAds.model');
+const Withdrawal = require("../models/withdrawal.model");
 
 async function setAgeHandler(req, reply) {
   try {
@@ -158,7 +159,7 @@ async function updateUserProfile(request, reply) {
       return reply.unauthorized('User not authenticated');
     }
 
-    const { interests, time } = request.body;
+    const { interests, time, upiId } = request.body;
 
     const user = await User.findById(userId);
     if (!user) return reply.notFound('User not found');
@@ -174,7 +175,7 @@ async function updateUserProfile(request, reply) {
     ];
     const validTimes = ['morning', 'afternoon', 'evening', 'night'];
 
-    // ✅ Validate interests: must be array & valid values
+    // ✅ Validate interests
     if (
       interests &&
       (!Array.isArray(interests) || !interests.every((i) => validInterests.includes(i)))
@@ -182,7 +183,7 @@ async function updateUserProfile(request, reply) {
       return reply.badRequest('Invalid interests value. Must be an array of valid strings.');
     }
 
-    // ✅ Validate time: must be array & valid values
+    // ✅ Validate time
     if (
       time &&
       (!Array.isArray(time) || !time.every((t) => validTimes.includes(t)))
@@ -190,9 +191,15 @@ async function updateUserProfile(request, reply) {
       return reply.badRequest('Invalid time value. Must be an array of valid strings.');
     }
 
+    // ✅ Validate UPI ID (basic regex: username@bank)
+    if (upiId && !/^[\w.-]+@[a-zA-Z]{3,}$/.test(upiId)) {
+      return reply.badRequest('Invalid UPI ID format. Example: username@bank');
+    }
+
     // ✅ Save to user
     if (interests) user.interests = interests;
     if (time) user.time = time;
+    if (upiId) user.upiId = upiId;
 
     await user.save();
 
@@ -202,6 +209,7 @@ async function updateUserProfile(request, reply) {
     return reply.internalServerError('Failed to update profile');
   }
 }
+
 
 
 async function getUserProfile(req, reply) {
@@ -296,12 +304,33 @@ async function getAffilateAds(req,reply) {
   reply.send(ads);
 }
 
+async function createWithdrawal(req, reply) {
+  try {
+    console.log("hit withdrawal☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️");
+    const { name, email, upiId, amount } = req.body;
 
+    if (!name || !email || !upiId || !amount) {
+      return reply.status(400).send({ error: "All fields are required" });
+    }
+
+    const withdrawal = new Withdrawal({ name, email, upiId, amount });
+    await withdrawal.save();
+
+    return reply.status(201).send({
+      success: true,
+      msg: "Withdrawal request created successfully",
+      withdrawal,
+    });
+  } catch (err) {
+    req.log.error(err);
+    return reply.status(500).send({ error: "Server error" });
+  }
+}
 
 
 
 
 
 module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile,
-addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds
+addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal
 };
