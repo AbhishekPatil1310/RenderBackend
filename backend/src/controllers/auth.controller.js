@@ -34,6 +34,23 @@ function setAuthCookies(reply, accessToken, refreshToken) {
 }
 
 
+function clearAuthCookies(reply) {
+  const isProd = env.NODE_ENV === 'production';
+  reply
+    .clearCookie('accessToken', {
+      httpOnly: true,
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
+      path: '/',
+    })
+    .clearCookie('refreshToken', {
+      httpOnly: true,
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
+      path: '/',
+    });
+}
+
 /* ───────────────── register ───────────────── */
 module.exports.register = async function register(request, reply) {
   try {
@@ -158,10 +175,9 @@ module.exports.logout = async function logout(request, reply) {
       request.body?.refreshToken || request.cookies.refreshToken;
     if (refreshToken) await revokeRefreshToken(refreshToken);
 
-    reply
-      .clearCookie('accessToken', { path: '/' })
-      .clearCookie('refreshToken', { path: '/api/v1/auth' })
-      .send({ message: 'Logged out' });
+    clearAuthCookies(reply);
+
+    reply.send({ message: 'Logged out' });
   } catch (err) {
     request.log.error(err);
     reply.internalServerError();
@@ -231,5 +247,6 @@ module.exports.getOtpExpiry = async function getOtpExpiry(req, reply) {
     expiresAt: user.otpExpires.toISOString(),
   });
 };
+
 
 
