@@ -26,7 +26,11 @@ function buildApp() {
     'https://advestor-frontend-wlaf1c02c-abhisheks-projects-680a2fd9.vercel.app',
     'https://advestor-frontend.vercel.app',
       'https://patil-project.vercel.app',
-    'https://advestor-frontend.vercel.app'// ✅ your actual frontend
+    'https://advestor-frontend.vercel.app',
+        'https://advestor-frontend-org.vercel.app',
+    'https://advestor-frontend-org-git-main-abhisheks-projects-680a2fd9.vercel.app',
+    'https://advestor-frontend-ib0tehdij-abhisheks-projects-680a2fd9.vercel.app',
+    'https://www.advestors.org'
   ].filter(Boolean); // remove null/undefined
 
   // Register fastify-cors
@@ -88,5 +92,6 @@ function buildApp() {
 
   return app;
 }
+
 
 module.exports = buildApp;
