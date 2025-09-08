@@ -159,8 +159,8 @@ module.exports.logout = async function logout(request, reply) {
     if (refreshToken) await revokeRefreshToken(refreshToken);
 
     reply
-      .clearCookie('accessToken', { path: '/' })
-      .clearCookie('refreshToken', { path: '/' })
+ .clearCookie('accessToken', { path: '/', secure: true, httpOnly: true, sameSite: 'strict' })
+  .clearCookie('refreshToken', { path: '/', secure: true, httpOnly: true, sameSite: 'strict' })
       .send({ message: 'Logged out' });
   } catch (err) {
     request.log.error(err);
@@ -231,3 +231,4 @@ module.exports.getOtpExpiry = async function getOtpExpiry(req, reply) {
     expiresAt: user.otpExpires.toISOString(),
   });
 };
+
