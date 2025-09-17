@@ -28,6 +28,11 @@ async function userRoutes(fastify) {
     preHandler: [fastify.authenticate],
     handler: userController.getAffilateAds,
   });
+      fastify.get('/UserCount',{
+    preHandler: [fastify.authenticate],
+    handler: userController.getUserCount,
+  });
 }
 
 module.exports = fp(userRoutes); // ✅ THIS IS REQUIRED
+
