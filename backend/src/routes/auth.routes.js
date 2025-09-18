@@ -89,6 +89,10 @@ async function authRoutes(fastify) {
   fastify.get('/auth/google', oauthController.googleOAuth);
 
   fastify.get('/auth/google/callback', oauthController.googleCallback);
+   fastify.post('/forgot-password', authController.forgotPassword);
+  fastify.post('/Fverify-otp', authController.FverifyOtp);
+  fastify.post('/reset-password', authController.resetPassword);
 }
 
 module.exports = fp(authRoutes);
+
