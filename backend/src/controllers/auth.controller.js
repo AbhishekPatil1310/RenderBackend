@@ -248,5 +248,88 @@ module.exports.getOtpExpiry = async function getOtpExpiry(req, reply) {
   });
 };
 
+// 1️⃣ Send OTP
+module.exports.forgotPassword = async function forgotPassword(request, reply) {
+  try {
+    const { email } = request.body;
+    const user = await User.findOne({ email });
 
+    if (!user) return reply.status(404).send({ message: "User not found" });
 
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // hash OTP before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedOtp = await bcrypt.hash(otp, salt);
+
+    user.passreOTP = hashedOtp;
+    user.passreOTPExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    await user.save();
+
+    await sendMail({
+      to: email,
+      subject: "Password Reset OTP",
+      html: `<h3>Your OTP is: <b>${otp}</b></h3><p>It will expire in 5 minutes.</p>`,
+    });
+
+    return reply.send({ message: "OTP sent to email" });
+  } catch (err) {
+    request.log.error(err);
+    return reply.internalServerError("Something went wrong");
+  }
+},
+
+  // 2️⃣ Verify OTP
+  module.exports.FverifyOtp = async function FverifyOtp(request, reply) {
+    try {
+      const { email, otp } = request.body;
+      const user = await User.findOne({ email }).select("passreOTP passreOTPExpires");
+      console.log("user is: ",user.passreOTP)
+
+      if (!user || !user.passreOTP) {
+        return reply.status(400).send({ message: "OTP not found" });
+      }
+
+      if (user.passreOTPExpires < Date.now()) {
+        return reply.status(400).send({ message: "OTP expired" });
+      }
+
+      const isMatch = await bcrypt.compare(otp, user.passreOTP);
+      if (!isMatch) {
+        return reply.status(400).send({ message: "Invalid OTP" });
+      }
+
+      return reply.send({ message: "OTP verified successfully" });
+    } catch (err) {
+      request.log.error(err);
+      return reply.internalServerError("Something went wrong");
+    }
+  },
+
+module.exports.resetPassword = async function resetPassword(request, reply) {
+  try {
+    const { email, newPassword } = request.body;
+    const user = await User.findOne({ email }).select("passreOTP passreOTPExpires");
+
+    if (!user) {
+      return reply.status(404).send({ message: "User not found" });
+    }
+
+    if (!user.passreOTP || user.passreOTPExpires < Date.now()) {
+      return reply.status(400).send({ message: "OTP expired or not verified" });
+    }
+
+    user.password = newPassword;
+
+    // clear OTP fields
+    user.passreOTP = undefined;
+    user.passreOTPExpires = undefined;
+
+    await user.save();
+
+    return reply.send({ message: "Password reset successfully" });
+  } catch (err) {
+    request.log.error(err);
+    return reply.internalServerError("Something went wrong");
+  }
+};
