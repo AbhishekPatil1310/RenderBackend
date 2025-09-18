@@ -327,10 +327,21 @@ async function createWithdrawal(req, reply) {
   }
 }
 
+async function getUserCount(req, reply) {
+  try {
+    const count = await User.countDocuments({ role: 'user' });
+    return reply.send({ totalUsers: count });
+  } catch (err) {
+    req.log.error(err, '[getUserCount] Error fetching user count');
+    return reply.internalServerError('Failed to fetch user count');
+  }
+}
+
 
 
 
 
 module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile,
-addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal
+addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
+
 };
