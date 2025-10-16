@@ -8,8 +8,11 @@ const axios = require('axios');
  */
 function setAuthCookies(reply, accessToken, refreshToken) {
   const isProd = env.NODE_ENV === 'production';
-  const accessMaxAge = seconds(env.JWT_ACCESS_EXPIRES_IN);
-  const refreshMaxAge = seconds(env.JWT_REFRESH_EXPIRES_IN);
+
+  // Convert JWT expiry from seconds/minutes to milliseconds
+  // You can adjust according to your env variables (assume seconds)
+  const accessMaxAge = env.JWT_ACCESS_EXPIRES_IN * 1000; // e.g., 900 = 15min
+  const refreshMaxAge = env.JWT_REFRESH_EXPIRES_IN * 1000; // e.g., 604800 = 7 days
 
   reply
     .setCookie('accessToken', accessToken, {
@@ -23,11 +26,10 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       httpOnly: true,
       sameSite: isProd ? 'none' : 'lax',
       secure: isProd,
-      path: '/', // ✅ corrected path
+      path: '/',
       maxAge: refreshMaxAge,
     });
 }
-
 
 /* ───────────────── Google OAuth Login ───────────────── */
 module.exports.googleOAuth = async function googleOAuth(request, reply) {
@@ -46,7 +48,6 @@ module.exports.googleOAuth = async function googleOAuth(request, reply) {
 module.exports.googleCallback = async function googleCallback(request, reply) {
   try {
     const { code } = request.query;
-
     if (!code) {
       return reply.redirect(`${env.FRONTEND_URL}/signin?error=oauth_cancelled`);
     }
@@ -69,30 +70,23 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
 
     // Get user info from Google
     const userResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
+      headers: { Authorization: `Bearer ${access_token}` },
     });
 
     const { id: googleId, email, name, verified_email } = userResponse.data;
 
     // Check if user exists
     let user = await User.findOne({
-      $or: [
-        { googleId },
-        { email }
-      ]
+      $or: [{ googleId }, { email }],
     });
 
     if (user) {
-      // Update googleId if user exists but doesn't have it
       if (!user.googleId) {
         user.googleId = googleId;
         user.isEmailVerified = verified_email;
         await user.save();
       }
     } else {
-      // Create new user
       user = await User.create({
         googleId,
         name,
@@ -104,10 +98,7 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
     }
 
     // Generate JWT tokens
-    const accessToken = await reply.jwtSign({ 
-      sub: user._id, 
-      role: user.role 
-    });
+    const accessToken = await reply.jwtSign({ sub: user._id, role: user.role });
     const refreshToken = await generateRefreshToken(user._id, reply);
 
     // Set auth cookies
@@ -125,4 +116,3 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
     reply.redirect(`${env.FRONTEND_URL}/signin?error=oauth_failed`);
   }
 };
-
