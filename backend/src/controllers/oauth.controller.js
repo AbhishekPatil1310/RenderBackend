@@ -7,25 +7,27 @@ const axios = require('axios');
  * Helper: sets HTTP‑only auth cookies.
  */
 function setAuthCookies(reply, accessToken, refreshToken) {
-  const accessMaxAge = 15 * 60; // 15 minutes in seconds
-  const refreshMaxAge = 7 * 24 * 60 * 60; // 7 days in seconds
+  const isProd = env.NODE_ENV === 'production';
+  const accessMaxAge = seconds(env.JWT_ACCESS_EXPIRES_IN);
+  const refreshMaxAge = seconds(env.JWT_REFRESH_EXPIRES_IN);
 
   reply
     .setCookie('accessToken', accessToken, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: env.NODE_ENV === 'production',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
       path: '/',
       maxAge: accessMaxAge,
     })
     .setCookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: env.NODE_ENV === 'production',
-      path: '/api/v1/auth',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
+      path: '/', // ✅ corrected path
       maxAge: refreshMaxAge,
     });
 }
+
 
 /* ───────────────── Google OAuth Login ───────────────── */
 module.exports.googleOAuth = async function googleOAuth(request, reply) {
@@ -123,3 +125,4 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
     reply.redirect(`${env.FRONTEND_URL}/signin?error=oauth_failed`);
   }
 };
+
