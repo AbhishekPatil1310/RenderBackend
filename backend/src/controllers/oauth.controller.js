@@ -1,5 +1,5 @@
 const User = require('../models/user.model');
-const { generateRefreshToken } = require('../utils/token.util');
+const { generateRefreshToken, seconds } = require('../utils/token.util');
 const env = require('../config/env');
 const axios = require('axios');
 
@@ -9,10 +9,9 @@ const axios = require('axios');
 function setAuthCookies(reply, accessToken, refreshToken) {
   const isProd = env.NODE_ENV === 'production';
 
-  // Convert JWT expiry from seconds/minutes to milliseconds
-  // You can adjust according to your env variables (assume seconds)
-  const accessMaxAge = env.JWT_ACCESS_EXPIRES_IN; // e.g., 900 = 15min
-  const refreshMaxAge = env.JWT_REFRESH_EXPIRES_IN; // e.g., 604800 = 7 days
+  // Convert JWT expiry to seconds
+  const accessMaxAge = seconds(env.JWT_ACCESS_EXPIRES_IN) * 1000;   // ms
+  const refreshMaxAge = seconds(env.JWT_REFRESH_EXPIRES_IN) * 1000; // ms
 
   reply
     .setCookie('accessToken', accessToken, {
@@ -106,7 +105,6 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
 
     // Redirect to frontend dashboard
     reply.redirect(`${env.FRONTEND_URL}/dashboard`);
-
   } catch (error) {
     console.error('Google OAuth callback error:', error.message);
     if (error.response) {
@@ -116,4 +114,3 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
     reply.redirect(`${env.FRONTEND_URL}/signin?error=oauth_failed`);
   }
 };
-
