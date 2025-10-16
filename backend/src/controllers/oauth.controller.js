@@ -11,8 +11,8 @@ function setAuthCookies(reply, accessToken, refreshToken) {
 
   // Convert JWT expiry from seconds/minutes to milliseconds
   // You can adjust according to your env variables (assume seconds)
-  const accessMaxAge = env.JWT_ACCESS_EXPIRES_IN * 1000; // e.g., 900 = 15min
-  const refreshMaxAge = env.JWT_REFRESH_EXPIRES_IN * 1000; // e.g., 604800 = 7 days
+  const accessMaxAge = env.JWT_ACCESS_EXPIRES_IN; // e.g., 900 = 15min
+  const refreshMaxAge = env.JWT_REFRESH_EXPIRES_IN; // e.g., 604800 = 7 days
 
   reply
     .setCookie('accessToken', accessToken, {
@@ -116,3 +116,4 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
     reply.redirect(`${env.FRONTEND_URL}/signin?error=oauth_failed`);
   }
 };
+
