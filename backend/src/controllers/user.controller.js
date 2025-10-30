@@ -164,9 +164,7 @@ async function updateUserProfile(request, reply) {
     const user = await User.findById(userId);
     if (!user) return reply.notFound('User not found');
 
-    if (user.role !== 'user') {
-      return reply.forbidden('Only regular users can edit their profile');
-    }
+
 
     // ✅ Allowed values
     const validInterests = [
@@ -349,4 +347,5 @@ module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,track
 addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
 
 };
+
 
