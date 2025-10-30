@@ -154,12 +154,12 @@ async function getAdHistoryForUserHandler(req, reply) {
 
 async function updateUserProfile(request, reply) {
   try {
-    const userId = request.user?.sub; // ✅ Use sub from JWT
+    const userId = request.user?.sub; 
     if (!userId) {
       return reply.unauthorized('User not authenticated');
     }
 
-    const { interests, time, upiId } = request.body;
+    const { interests, time, upiId, name, companyName } = request.body;
 
     const user = await User.findById(userId);
     if (!user) return reply.notFound('User not found');
@@ -200,6 +200,9 @@ async function updateUserProfile(request, reply) {
     if (interests) user.interests = interests;
     if (time) user.time = time;
     if (upiId) user.upiId = upiId;
+    if (name) user.name = name;
+    if (companyName) user.companyName = companyName;
+
 
     await user.save();
 
@@ -209,6 +212,7 @@ async function updateUserProfile(request, reply) {
     return reply.internalServerError('Failed to update profile');
   }
 }
+
 
 
 
@@ -345,3 +349,4 @@ module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,track
 addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
 
 };
+
