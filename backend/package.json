@@ -21,6 +21,7 @@
     "@fastify/jwt": "^9.1.0",
     "@fastify/multipart": "^9.0.3",
     "@fastify/sensible": "^6.0.3",
+    "@getbrevo/brevo": "^3.0.1",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.0.0",
@@ -43,4 +44,5 @@
     "node": ">=18.x"
   }
 }
+
 
