@@ -23,7 +23,40 @@ async function authRoutes(fastify) {
     handler: authController.register,
   });
 
+    fastify.post('/auth/register/Ad', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['name', 'email', 'password'],
+        additionalProperties: false,
+        properties: {
+          name: { type: 'string' },
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string', minLength: 6 },
+          role: { type: 'string', enum: ['user', 'advertiser', 'admin'] },
+          companyName: { type: 'string' },
+          mobileNumber: { type: 'string' },
+        },
+      },
+    },
+    handler: authController.register,
+  });
+
   fastify.post('/auth/login', {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string' },
+        },
+      },
+    },
+    handler: authController.login,
+  });
+
+    fastify.post('/auth/login/Ad', {
     schema: {
       body: {
         type: 'object',
@@ -95,4 +128,5 @@ async function authRoutes(fastify) {
 }
 
 module.exports = fp(authRoutes);
+
 
