@@ -58,7 +58,7 @@ module.exports.register = async function register(request, reply) {
       name,
       email,
       password,
-      role = 'user',
+      role,
       companyName,
       mobileNumber,
     } = request.body;
@@ -333,3 +333,4 @@ module.exports.resetPassword = async function resetPassword(request, reply) {
     return reply.internalServerError("Something went wrong");
   }
 };
+
