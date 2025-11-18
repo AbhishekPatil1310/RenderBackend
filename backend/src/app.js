@@ -14,6 +14,7 @@ const parse = require('@fastify/formbody');
 const userRoutes = require('./routes/user.routes');
 const adminRoutes = require('./routes/admin.routes');
 const paymentRoutes = require('./services/RazerPay')
+const locationRouter = require('./routes/location.router')
 
 function buildApp() {
   const app = fastify({ logger: true });
@@ -82,6 +83,10 @@ function buildApp() {
   }, { prefix: '/api/v1' });
 
   app.register(async (fastify) => {
+    fastify.register(locationRouter);
+  }, { prefix: '/api/v1' });
+  
+  app.register(async (fastify) => {
     fastify.register(adminRoutes);
   }, { prefix: '/api/v1' });
 
@@ -95,3 +100,4 @@ function buildApp() {
 
 
 module.exports = buildApp;
+
