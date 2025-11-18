@@ -3,6 +3,7 @@ const User = require('../models/user.model');
 const Ad = require('../models/ad.model'); 
 const AdViewLog = require('../models/AdView.model');
 const AffiliateAds = require('../models/AffiliateAds.model');
+const Withdrawal = require("../models/withdrawal.model");
 
 async function setAgeHandler(req, reply) {
   try {
@@ -153,19 +154,17 @@ async function getAdHistoryForUserHandler(req, reply) {
 
 async function updateUserProfile(request, reply) {
   try {
-    const userId = request.user?.sub; // ✅ Use sub from JWT
+    const userId = request.user?.sub; 
     if (!userId) {
       return reply.unauthorized('User not authenticated');
     }
 
-    const { interests, time } = request.body;
+    const { interests, time, upiId, name, companyName } = request.body;
 
     const user = await User.findById(userId);
     if (!user) return reply.notFound('User not found');
 
-    if (user.role !== 'user') {
-      return reply.forbidden('Only regular users can edit their profile');
-    }
+
 
     // ✅ Allowed values
     const validInterests = [
@@ -174,7 +173,7 @@ async function updateUserProfile(request, reply) {
     ];
     const validTimes = ['morning', 'afternoon', 'evening', 'night'];
 
-    // ✅ Validate interests: must be array & valid values
+    // ✅ Validate interests
     if (
       interests &&
       (!Array.isArray(interests) || !interests.every((i) => validInterests.includes(i)))
@@ -182,7 +181,7 @@ async function updateUserProfile(request, reply) {
       return reply.badRequest('Invalid interests value. Must be an array of valid strings.');
     }
 
-    // ✅ Validate time: must be array & valid values
+    // ✅ Validate time
     if (
       time &&
       (!Array.isArray(time) || !time.every((t) => validTimes.includes(t)))
@@ -190,9 +189,18 @@ async function updateUserProfile(request, reply) {
       return reply.badRequest('Invalid time value. Must be an array of valid strings.');
     }
 
+    // ✅ Validate UPI ID (basic regex: username@bank)
+    if (upiId && !/^[\w.-]+@[a-zA-Z]{3,}$/.test(upiId)) {
+      return reply.badRequest('Invalid UPI ID format. Example: username@bank');
+    }
+
     // ✅ Save to user
     if (interests) user.interests = interests;
     if (time) user.time = time;
+    if (upiId) user.upiId = upiId;
+    if (name) user.name = name;
+    if (companyName) user.companyName = companyName;
+
 
     await user.save();
 
@@ -204,12 +212,14 @@ async function updateUserProfile(request, reply) {
 }
 
 
+
+
 async function getUserProfile(req, reply) {
   try {
     const userId = req.user?.sub;
     if (!userId) return reply.unauthorized('User not authenticated');
 
-    const user = await User.findById(userId).select('name email interests time credit age role monthlySpent totalSpent');
+    const user = await User.findById(userId).select('name email interests time credit age role monthlySpent Useraddress locationEnabled lastLocationUpdate totalSpent');
 
     if (!user) return reply.notFound('User not found');
 
@@ -217,10 +227,14 @@ async function getUserProfile(req, reply) {
       name: user.name,
       email: user.email,
       interests: user.interests || [],
+      Useraddress:user.Useraddress,
+      lastLocationUpdate:user.lastLocationUpdate,
+      locationEnabled:user.locationEnabled,
       time: user.time || [],
       credit: user.credit || 0,
       role: user.role || 'user',
       age: user.age || null,
+      companyName: user.companyName || null,
       monthlySpent: user.monthlySpent || 0,
       totalSpent: user.totalSpent || 0,
     });
@@ -296,6 +310,29 @@ async function getAffilateAds(req,reply) {
   reply.send(ads);
 }
 
+async function createWithdrawal(req, reply) {
+  try {
+    console.log("hit withdrawal☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️☠️");
+    const { name, email, upiId, amount } = req.body;
+
+    if (!name || !email || !upiId || !amount) {
+      return reply.status(400).send({ error: "All fields are required" });
+    }
+
+    const withdrawal = new Withdrawal({ name, email, upiId, amount });
+    await withdrawal.save();
+
+    return reply.status(201).send({
+      success: true,
+      msg: "Withdrawal request created successfully",
+      withdrawal,
+    });
+  } catch (err) {
+    req.log.error(err);
+    return reply.status(500).send({ error: "Server error" });
+  }
+}
+
 async function getUserCount(req, reply) {
   try {
     const count = await User.countDocuments({ role: 'user' });
@@ -311,6 +348,9 @@ async function getUserCount(req, reply) {
 
 
 module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile,
-addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,getUserCount
+addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
 
 };
+
+
+
