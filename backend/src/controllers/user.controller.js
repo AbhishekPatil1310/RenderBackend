@@ -219,7 +219,7 @@ async function getUserProfile(req, reply) {
     const userId = req.user?.sub;
     if (!userId) return reply.unauthorized('User not authenticated');
 
-    const user = await User.findById(userId).select('name email interests time credit age role monthlySpent totalSpent');
+    const user = await User.findById(userId).select('name email interests time credit age role monthlySpent Useraddress lastLocationUpdate totalSpent');
 
     if (!user) return reply.notFound('User not found');
 
@@ -227,10 +227,13 @@ async function getUserProfile(req, reply) {
       name: user.name,
       email: user.email,
       interests: user.interests || [],
+      Useraddress:user.Useraddress,
+      lastLocationUpdate:user.lastLocationUpdate,
       time: user.time || [],
       credit: user.credit || 0,
       role: user.role || 'user',
       age: user.age || null,
+      companyName: user.companyName || null,
       monthlySpent: user.monthlySpent || 0,
       totalSpent: user.totalSpent || 0,
     });
@@ -347,5 +350,6 @@ module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,track
 addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
 
 };
+
 
 
