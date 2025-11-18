@@ -28,6 +28,10 @@ async function userRoutes(fastify) {
     preHandler: [fastify.authenticate],
     handler: userController.getAffilateAds,
   });
+    fastify.post('/withdraw',{
+    preHandler: [fastify.authenticate],
+    handler: userController.createWithdrawal,
+  });
       fastify.get('/UserCount',{
     preHandler: [fastify.authenticate],
     handler: userController.getUserCount,
@@ -35,4 +39,3 @@ async function userRoutes(fastify) {
 }
 
 module.exports = fp(userRoutes); // ✅ THIS IS REQUIRED
-
