@@ -130,9 +130,8 @@ const userSchema = new Schema(
     },
     locationEnabled: { type: Boolean, default: false },
     lastLocationUpdate: { type: Date, default: null },
-
-
-  },
+    profilePhoto:{type:String,default:null},
+ },
   { timestamps: true }
 );
 
@@ -155,4 +154,5 @@ userSchema.methods.isPasswordMatch = function (plain) {
 };
 
 module.exports = model('User', userSchema);
+
 
