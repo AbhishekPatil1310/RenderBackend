@@ -4,6 +4,7 @@ const AD = require('../models/ad.model');
 const { sendMail } = require('../utils/mailer');
 const AdViewLog = require('../models/AdView.model');
 const AffiliateAds = require('../models/AffiliateAds.model');
+const Withdrawal = require("../models/withdrawal.model");
 const { deleteFromSupabase } = require('../services/supabase.service');
 
 async function getAllUser(req, reply) {
@@ -339,7 +340,74 @@ async function DeleteAffiliateAd(req, reply) {
 };
 
 
+async function getWithdrawals(req, reply) {
+  try {
+    const withdrawals = await Withdrawal.find().sort({ createdAt: -1 });
+    return reply.send({ success: true, withdrawals });
+  } catch (err) {
+    req.log.error(err);
+    return reply.status(500).send({ error: "Server error" });
+  }
+}
 
 
 
-module.exports = { getAllUser, getUserBymail, updateUser, deleteUser, banUser,unbanUser, sendMailToUser, addCredit, getAllAdsAnalytics, getAds, deleteAd, getAffilateAds, AddAffiliateAd, updateAffiliateAd, DeleteAffiliateAd };
+
+async function updateWithdrawalStatus(req, reply) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["approved", "rejected"].includes(status)) {
+      return reply.status(400).send({ error: "Invalid status value" });
+    }
+
+    const withdrawal = await Withdrawal.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+    console.log("the id is ☠️🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺🕺:",id)
+
+    if (!withdrawal) {
+      return reply.status(404).send({ error: "Withdrawal not found" });
+    }
+
+    return reply.send({
+      success: true,
+      msg: `Withdrawal status updated to ${status}`,
+      withdrawal,
+    });
+  } catch (err) {
+    req.log.error(err);
+    return reply.status(500).send({ error: "Server error" });
+  }
+}
+
+// Bulk update all withdrawals
+async function bulkUpdateWithdrawalStatus(req, reply) {
+  try {
+    const { status } = req.body;
+
+    if (!["approved", "rejected"].includes(status)) {
+      return reply.status(400).send({ error: "Invalid status value" });
+    }
+
+    await Withdrawal.updateMany({}, { status });
+
+    return reply.send({
+      success: true,
+      msg: `All withdrawals updated to ${status}`,
+    });
+  } catch (err) {
+    req.log.error(err);
+    return reply.status(500).send({ error: "Server error" });
+  }
+}
+
+
+
+module.exports = {
+  getAllUser, getUserBymail, updateUser, deleteUser, banUser, unbanUser, sendMailToUser, addCredit,
+  getAllAdsAnalytics, getAds, deleteAd, getAffilateAds, AddAffiliateAd, updateAffiliateAd, DeleteAffiliateAd, getWithdrawals,updateWithdrawalStatus,bulkUpdateWithdrawalStatus
+};

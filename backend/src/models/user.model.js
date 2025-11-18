@@ -28,6 +28,20 @@ const diaryEntrySchema = new Schema(
   { _id: false } // optional: prevents separate ObjectId for each diary entry
 );
 
+const address = new Schema(
+  {
+    Latitude: { type: Number, default: null },
+    Longitude: { type: Number, default: null },
+    road: { type: String, default: "N/A" },
+    city: { type: String, default: "N/A" },
+    state: { type: String, default: "N/A" },
+    postcode: { type: String, default: "N/A" },
+    country: { type: String, default: "N/A" },
+    fullAddress: { type: String },
+  },
+  { _id: false }
+)
+
 const userSchema = new Schema(
   {
     name: {
@@ -52,6 +66,10 @@ const userSchema = new Schema(
       type: String,
       unique: true,
       sparse: true, // Allows multiple null values
+    },
+    upiId: {
+      type: String,
+      trim: true,
     },
     isEmailVerified: {
       type: Boolean,
@@ -102,9 +120,18 @@ const userSchema = new Schema(
     emailOTP: String, // ✅ hashed OTP
     otpExpires: Date,
 
-    diaryEntries: [diaryEntrySchema],
+    passreOTP: String,
+    passreOTPExpires: Date,
 
-  },
+    diaryEntries: [diaryEntrySchema],
+    Useraddress: {
+      type: address,
+      default: {},
+    },
+    locationEnabled: { type: Boolean, default: false },
+    lastLocationUpdate: { type: Date, default: null },
+    profilePhoto:{type:String,default:null},
+ },
   { timestamps: true }
 );
 
@@ -116,6 +143,9 @@ userSchema.pre('save', async function (next) {
 
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
+  this.passreOTP = undefined;
+  this.passreOTPExpires = undefined;
+
   next();
 });
 
@@ -124,3 +154,6 @@ userSchema.methods.isPasswordMatch = function (plain) {
 };
 
 module.exports = model('User', userSchema);
+
+
+

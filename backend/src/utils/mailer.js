@@ -1,27 +1,29 @@
-const nodemailer = require('nodemailer');
+const Brevo = require('@getbrevo/brevo');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // or use SMTP
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Configure the Brevo client
+const brevo = new Brevo.TransactionalEmailsApi();
+brevo.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
 
 async function sendMail({ to, subject, html }) {
   const mailOptions = {
-    from: `"Admin Advestore(no-reply)" <${process.env.EMAIL_USER}>`,
-    to,
+    sender: {
+      name: "Admin Advestore (no-reply)",
+      email: process.env.EMAIL_USER, // must be verified in Brevo
+    },
+    to: [{ email: to }],
     subject,
-    html,
+    htmlContent: html,
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent: ' + info.response);
-    return info;
+    const data = await brevo.sendTransacEmail(mailOptions);
+    console.log("✅ Email sent:", data.body);
+    return data.body;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("❌ Error sending email:", error.response?.body || error);
     throw error;
   }
 }

@@ -32,7 +32,7 @@ async function sendOtpEmail(email) {
 <p>If you did not initiate this request, please ignore this email.</p>
 
 <p>Best regards,<br />
-The AdVision Team</p>
+The AdVestors Team</p>
 
   `;
 
@@ -63,3 +63,4 @@ async function verifyStoredOtp(email, otp) {
 }
 
 module.exports = { sendOtpEmail, verifyStoredOtp };
+

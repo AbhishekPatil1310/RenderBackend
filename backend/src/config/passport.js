@@ -29,14 +29,17 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+
+        const profilePhoto = profile.photos?.[0]?.value;
+
         // Check if user already exists with this Google ID
-        let user = await User.findOne({ 
+        let user = await User.findOne({
           $or: [
             { googleId: profile.id },
             { email: profile.emails[0].value }
           ]
         });
-
+        
         if (user) {
           // If user exists but doesn't have googleId, add it
           if (!user.googleId) {
@@ -45,12 +48,17 @@ passport.use(
           }
           return done(null, user);
         }
-
+        
+        if (!user.profilePhoto || user.profilePhoto !== profilePhoto) {
+          user.profilePhoto = profilePhoto;
+          updated = true;
+        }
         // Create new user
         user = await User.create({
           googleId: profile.id,
           name: profile.displayName,
           email: profile.emails[0].value,
+          profilePhoto: profilePhoto,
           password: 'google-oauth-user', // Placeholder password for OAuth users
           role: 'user',
           isEmailVerified: true, // Google accounts are pre-verified

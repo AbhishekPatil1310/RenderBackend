@@ -39,3 +39,4 @@ async function userRoutes(fastify) {
 }
 
 module.exports = fp(userRoutes); // ✅ THIS IS REQUIRED
+

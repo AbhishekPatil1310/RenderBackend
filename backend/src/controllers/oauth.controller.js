@@ -1,5 +1,5 @@
 const User = require('../models/user.model');
-const { generateRefreshToken } = require('../utils/token.util');
+const { generateRefreshToken, seconds } = require('../utils/token.util');
 const env = require('../config/env');
 const axios = require('axios');
 
@@ -7,22 +7,25 @@ const axios = require('axios');
  * Helper: sets HTTP‑only auth cookies.
  */
 function setAuthCookies(reply, accessToken, refreshToken) {
-  const accessMaxAge = 15 * 60; // 15 minutes in seconds
-  const refreshMaxAge = 7 * 24 * 60 * 60; // 7 days in seconds
+  const isProd = env.NODE_ENV === 'production';
+
+  // Convert JWT expiry to seconds
+  const accessMaxAge = seconds(env.JWT_ACCESS_EXPIRES_IN) * 1000;   // ms
+  const refreshMaxAge = seconds(env.JWT_REFRESH_EXPIRES_IN) * 1000; // ms
 
   reply
     .setCookie('accessToken', accessToken, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: env.NODE_ENV === 'production',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
       path: '/',
       maxAge: accessMaxAge,
     })
     .setCookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: env.NODE_ENV === 'production',
-      path: '/api/v1/auth',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
+      path: '/',
       maxAge: refreshMaxAge,
     });
 }
@@ -44,7 +47,6 @@ module.exports.googleOAuth = async function googleOAuth(request, reply) {
 module.exports.googleCallback = async function googleCallback(request, reply) {
   try {
     const { code } = request.query;
-
     if (!code) {
       return reply.redirect(`${env.FRONTEND_URL}/signin?error=oauth_cancelled`);
     }
@@ -67,30 +69,23 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
 
     // Get user info from Google
     const userResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
+      headers: { Authorization: `Bearer ${access_token}` },
     });
 
     const { id: googleId, email, name, verified_email } = userResponse.data;
 
     // Check if user exists
     let user = await User.findOne({
-      $or: [
-        { googleId },
-        { email }
-      ]
+      $or: [{ googleId }, { email }],
     });
 
     if (user) {
-      // Update googleId if user exists but doesn't have it
       if (!user.googleId) {
         user.googleId = googleId;
         user.isEmailVerified = verified_email;
         await user.save();
       }
     } else {
-      // Create new user
       user = await User.create({
         googleId,
         name,
@@ -102,10 +97,7 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
     }
 
     // Generate JWT tokens
-    const accessToken = await reply.jwtSign({ 
-      sub: user._id, 
-      role: user.role 
-    });
+    const accessToken = await reply.jwtSign({ sub: user._id, role: user.role });
     const refreshToken = await generateRefreshToken(user._id, reply);
 
     // Set auth cookies
@@ -113,7 +105,6 @@ module.exports.googleCallback = async function googleCallback(request, reply) {
 
     // Redirect to frontend dashboard
     reply.redirect(`${env.FRONTEND_URL}/dashboard`);
-
   } catch (error) {
     console.error('Google OAuth callback error:', error.message);
     if (error.response) {

@@ -1,4 +1,7 @@
-const { getAllUser, getUserBymail, updateUser, deleteUser, banUser, unbanUser, sendMailToUser, addCredit, getAllAdsAnalytics, getAds, deleteAd, getAffilateAds, AddAffiliateAd, updateAffiliateAd, DeleteAffiliateAd } = require('../controllers/admin.controller');
+const { getAllUser, getUserBymail, updateUser, deleteUser, banUser, unbanUser, sendMailToUser, addCredit, getAllAdsAnalytics,
+     getAds, deleteAd, getAffilateAds, AddAffiliateAd, updateAffiliateAd, DeleteAffiliateAd,
+    getWithdrawals,updateWithdrawalStatus, 
+    bulkUpdateWithdrawalStatus} = require('../controllers/admin.controller');
 const fp = require('fastify-plugin');
 async function adminRoutes(fastify) {
     fastify.get('/admin/users', getAllUser);
@@ -16,6 +19,10 @@ async function adminRoutes(fastify) {
     fastify.put('/updateAffiliateAd/:id', updateAffiliateAd);
     fastify.delete('/deleteAffiliateAd/:id', DeleteAffiliateAd);
     fastify.put('/admin/users/:id/unban', unbanUser);
+    fastify.patch('/withdraw/:id', updateWithdrawalStatus);
+    fastify.patch('/withdraw', bulkUpdateWithdrawalStatus);
+    fastify.get('/withdraw', getWithdrawals);
+    
 }
 
 module.exports = fp(adminRoutes);
