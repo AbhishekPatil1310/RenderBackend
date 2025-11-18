@@ -37,7 +37,7 @@ const address = new Schema(
     state: { type: String, default: "N/A" },
     postcode: { type: String, default: "N/A" },
     country: { type: String, default: "N/A" },
-    fullAddress: { type: String, required: true },
+    fullAddress: { type: String },
   },
   { _id: false }
 )
@@ -154,5 +154,6 @@ userSchema.methods.isPasswordMatch = function (plain) {
 };
 
 module.exports = model('User', userSchema);
+
 
 
