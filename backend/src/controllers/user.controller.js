@@ -344,14 +344,6 @@ async function getUserCount(req, reply) {
 }
 
 
-
-
-
 module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile,
-addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
-
+addDiary
 };
-
-
-
-
