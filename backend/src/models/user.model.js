@@ -30,8 +30,8 @@ const diaryEntrySchema = new Schema(
 
 const address = new Schema(
   {
-    Latitude: { type: Number, default: "N/A" },
-    Longitude: { type: Number, default: "N/A" },
+    Latitude: { type: Number, default: null },
+    Longitude: { type: Number, default: null },
     road: { type: String, default: "N/A" },
     city: { type: String, default: "N/A" },
     state: { type: String, default: "N/A" },
@@ -155,3 +155,4 @@ userSchema.methods.isPasswordMatch = function (plain) {
 };
 
 module.exports = model('User', userSchema);
+
