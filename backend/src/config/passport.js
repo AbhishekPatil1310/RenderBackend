@@ -39,11 +39,7 @@ passport.use(
             { email: profile.emails[0].value }
           ]
         });
-        if (!user.profilePhoto || user.profilePhoto !== profilePhoto) {
-          user.profilePhoto = profilePhoto;
-          updated = true;
-        }
-
+        
         if (user) {
           // If user exists but doesn't have googleId, add it
           if (!user.googleId) {
@@ -52,7 +48,11 @@ passport.use(
           }
           return done(null, user);
         }
-
+        
+        if (!user.profilePhoto || user.profilePhoto !== profilePhoto) {
+          user.profilePhoto = profilePhoto;
+          updated = true;
+        }
         // Create new user
         user = await User.create({
           googleId: profile.id,
