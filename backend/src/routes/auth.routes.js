@@ -13,6 +13,7 @@ async function authRoutes(fastify) {
         properties: {
           name: { type: 'string' },
           email: { type: 'string', format: 'email' },
+          gender:{type:'string'},
           password: { type: 'string', minLength: 6 },
           role: { type: 'string', enum: ['user', 'advertiser', 'admin'] },
           companyName: { type: 'string' },

@@ -56,6 +56,10 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+    },
     password: {
       type: String,
       required: true,
@@ -130,8 +134,8 @@ const userSchema = new Schema(
     },
     locationEnabled: { type: Boolean, default: false },
     lastLocationUpdate: { type: Date, default: null },
-    profilePhoto:{type:String,default:null},
- },
+    profilePhoto: { type: String, default: null },
+  },
   { timestamps: true }
 );
 

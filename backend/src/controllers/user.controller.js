@@ -219,13 +219,14 @@ async function getUserProfile(req, reply) {
     const userId = req.user?.sub;
     if (!userId) return reply.unauthorized('User not authenticated');
 
-    const user = await User.findById(userId).select('name email interests time credit age role monthlySpent Useraddress locationEnabled lastLocationUpdate totalSpent');
+    const user = await User.findById(userId).select('name email gender interests time credit age role monthlySpent Useraddress locationEnabled lastLocationUpdate totalSpent');
 
     if (!user) return reply.notFound('User not found');
 
     reply.send({
       name: user.name,
       email: user.email,
+      gender:user.gender,
       interests: user.interests || [],
       Useraddress:user.Useraddress,
       lastLocationUpdate:user.lastLocationUpdate,
@@ -345,5 +346,6 @@ async function getUserCount(req, reply) {
 
 
 module.exports = {setAgeHandler,submitFeedbackHandler,getAdsForUserHandler,trackViewHandler,getAdHistoryForUserHandler,updateUserProfile,getUserProfile,
-addDiary
+addDiaryEntry, getDiaryEntries, deleteDiaryEntry,getAffilateAds,createWithdrawal,getUserCount
 };
+

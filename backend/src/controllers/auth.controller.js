@@ -57,11 +57,13 @@ module.exports.register = async function register(request, reply) {
     const {
       name,
       email,
+      gender,
       password,
       role,
       companyName,
       mobileNumber,
     } = request.body;
+    console.log('name is: ',request.body,"🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥")
 
     const existing = await User.findOne({ email });
     if (existing) return reply.badRequest('Email already registered');
@@ -71,32 +73,47 @@ module.exports.register = async function register(request, reply) {
 
     const userData = { name, email, password, role };
 
-    // Add advertiser-specific fields if applicable
+    // Advertiser fields
     if (role === 'advertiser') {
       if (!companyName || !mobileNumber) {
         return reply.badRequest('Company name and mobile number required');
       }
-
       userData.companyName = companyName;
       userData.mobileNumber = mobileNumber;
     }
 
-    // ✅ Create user
+    // User fields
+    if (role === 'user') {
+      if (!gender) {
+        return reply.badRequest('Gender is required');
+      }
+
+      // Validate allowed values
+      const allowedGenders = ['male', 'female', 'other'];
+      if (!allowedGenders.includes(gender.toLowerCase())) {
+        return reply.badRequest('Invalid gender');
+      }
+
+      userData.gender = gender.toLowerCase();
+    }
+
+    // Create user
     const user = await User.create(userData);
 
-    // ✅ Send OTP Email (OTP is hashed and stored inside sendOtpEmail)
+    // Send OTP Email
     await sendOtpEmail(user.email);
 
-    // ✅ Send minimal response (NO TOKENS yet)
     reply.code(201).send({
       message: 'Registered successfully. OTP sent to email.',
       email: user.email,
     });
+
   } catch (err) {
     request.log.error(err);
     reply.internalServerError();
   }
 };
+
 
 /* ───────────────── login ───────────────── */
 module.exports.login = async function login(request, reply) {
