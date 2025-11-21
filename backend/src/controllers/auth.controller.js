@@ -23,6 +23,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       secure: isProd,
       path: '/',
       maxAge: accessMaxAge,
+      domain: isProd ? ".onrender.com" : "localhost",
     })
     .setCookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -30,6 +31,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       secure: isProd,
       path: '/', // ✅ corrected path
       maxAge: refreshMaxAge,
+      domain: isProd ? ".onrender.com" : "localhost",
     });
 }
 
@@ -63,7 +65,7 @@ module.exports.register = async function register(request, reply) {
       companyName,
       mobileNumber,
     } = request.body;
-    console.log('name is: ',request.body,"🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥")
+    console.log('name is: ', request.body, "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥")
 
     const existing = await User.findOne({ email });
     if (existing) return reply.badRequest('Email already registered');
@@ -301,7 +303,7 @@ module.exports.forgotPassword = async function forgotPassword(request, reply) {
     try {
       const { email, otp } = request.body;
       const user = await User.findOne({ email }).select("passreOTP passreOTPExpires");
-      console.log("user is: ",user.passreOTP)
+      console.log("user is: ", user.passreOTP)
 
       if (!user || !user.passreOTP) {
         return reply.status(400).send({ message: "OTP not found" });
@@ -323,31 +325,31 @@ module.exports.forgotPassword = async function forgotPassword(request, reply) {
     }
   },
 
-module.exports.resetPassword = async function resetPassword(request, reply) {
-  try {
-    const { email, newPassword } = request.body;
-    const user = await User.findOne({ email }).select("passreOTP passreOTPExpires");
+  module.exports.resetPassword = async function resetPassword(request, reply) {
+    try {
+      const { email, newPassword } = request.body;
+      const user = await User.findOne({ email }).select("passreOTP passreOTPExpires");
 
-    if (!user) {
-      return reply.status(404).send({ message: "User not found" });
+      if (!user) {
+        return reply.status(404).send({ message: "User not found" });
+      }
+
+      if (!user.passreOTP || user.passreOTPExpires < Date.now()) {
+        return reply.status(400).send({ message: "OTP expired or not verified" });
+      }
+
+      user.password = newPassword;
+
+      // clear OTP fields
+      user.passreOTP = undefined;
+      user.passreOTPExpires = undefined;
+
+      await user.save();
+
+      return reply.send({ message: "Password reset successfully" });
+    } catch (err) {
+      request.log.error(err);
+      return reply.internalServerError("Something went wrong");
     }
-
-    if (!user.passreOTP || user.passreOTPExpires < Date.now()) {
-      return reply.status(400).send({ message: "OTP expired or not verified" });
-    }
-
-    user.password = newPassword;
-
-    // clear OTP fields
-    user.passreOTP = undefined;
-    user.passreOTPExpires = undefined;
-
-    await user.save();
-
-    return reply.send({ message: "Password reset successfully" });
-  } catch (err) {
-    request.log.error(err);
-    return reply.internalServerError("Something went wrong");
-  }
-};
+  };
 
