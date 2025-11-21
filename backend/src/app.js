@@ -26,12 +26,19 @@ function buildApp() {
     'http://localhost:5175',
     'https://advestor-frontend-wlaf1c02c-abhisheks-projects-680a2fd9.vercel.app',
     'https://advestor-frontend.vercel.app',
-      'https://patil-project.vercel.app',
+    'https://patil-project.vercel.app',
     'https://advestor-frontend.vercel.app',
-        'https://advestor-frontend-org.vercel.app',
+    'https://advestor-frontend-org.vercel.app',
     'https://advestor-frontend-org-git-main-abhisheks-projects-680a2fd9.vercel.app',
     'https://advestor-frontend-ib0tehdij-abhisheks-projects-680a2fd9.vercel.app',
-    'https://www.advestors.org'
+    'https://www.advestors.org',
+
+
+//backend .........................................................................urls
+
+    "https://renderbackend-tvny.onrender.com",
+
+    "https://microchatbackend.onrender.com",
   ].filter(Boolean); // remove null/undefined
 
   // Register fastify-cors
@@ -44,7 +51,7 @@ function buildApp() {
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
@@ -85,7 +92,7 @@ function buildApp() {
   app.register(async (fastify) => {
     fastify.register(locationRouter);
   }, { prefix: '/api/v1' });
-  
+
   app.register(async (fastify) => {
     fastify.register(adminRoutes);
   }, { prefix: '/api/v1' });
