@@ -23,7 +23,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       secure: isProd,
       path: '/',
       maxAge: accessMaxAge,
-      domain: isProd ? ".onrender.com" : "localhost",
+      domain: isProd ? "advestors.org": "localhost",
     })
     .setCookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -31,7 +31,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       secure: isProd,
       path: '/', // ✅ corrected path
       maxAge: refreshMaxAge,
-      domain: isProd ? ".onrender.com" : "localhost",
+      domain: isProd ? "advestors.org" : "localhost",
     });
 }
 

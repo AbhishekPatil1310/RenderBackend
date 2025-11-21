@@ -17,7 +17,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       secure: isProd,
       path: '/',
       maxAge: seconds(env.JWT_ACCESS_EXPIRES_IN),
-      domain: isProd ? ".onrender.com" : "localhost",
+      domain: isProd ? "advestors.org" : "localhost",
     })
     .setCookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -25,7 +25,7 @@ function setAuthCookies(reply, accessToken, refreshToken) {
       secure: isProd,
       path: '/', // ✅ match with controller logout()
       maxAge: seconds(env.JWT_REFRESH_EXPIRES_IN),
-      domain: isProd ? ".onrender.com" : "localhost",
+      domain: isProd ? "advestors.org" : "localhost",
     });
 }
 
