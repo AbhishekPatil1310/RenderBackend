@@ -34,11 +34,7 @@ function buildApp() {
     'https://www.advestors.org',
 
 
-//backend .........................................................................urls
 
-    "https://renderbackend-tvny.onrender.com",
-
-    "https://microchatbackend.onrender.com",
   ].filter(Boolean); // remove null/undefined
 
   // Register fastify-cors
